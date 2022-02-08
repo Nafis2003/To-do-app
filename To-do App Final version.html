@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>To-do</title>
+
+<script src="/storage/9016-4EF8/react.production.min.js"></script>
+  <script src="/storage/9016-4EF8/react-dom.production.min.js"></script>
+  <script src="/storage/9016-4EF8/babel.min.js"></script>
+  <script src="https://kit.fontawesome.com/4c61277be4.js" crossorigin="anonymous" ></script>
+  
+  
+<style type="text/css">
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+display:flex;
+min-height:100vh;
+width:100%;
+justify-content: center;
+background:rgb(235,249,254);
+color:#333;
+}
+
+#app{
+position:relative;
+margin:30px 40px;
+width:100%;
+}
+
+h1{
+text-align:center;
+}
+
+form{
+position:relative;
+width:100%;
+background:#fff;
+padding:20px;
+border-radius:16px;
+margin:10px 0;
+box-shadow:8px 8px 16px rgba(0,0,0,0.1),
+           -8px -8px 16px rgba(0,0,0,0.1);
+}
+
+input {
+width:100%;
+outline:0;
+padding:16px;
+border:0;
+border-radius:10px;
+background:#f7f7f7;
+}
+label {
+font-weight:bold;
+font-size:1.25em;
+}
+
+button[type="submit"]{
+display: block;
+margin:8px auto 0 auto;
+padding:10px;
+border:0;
+outline:0;
+border-radius:8px;
+background:#5597ffdd;
+color:#0e0f25de;
+font-weight:bold;
+box-shadow:4px 4px 16px rgba(0,0,0,0.1);
+}
+
+.card{
+  display:grid;
+  align-items: center;
+  grid-template-columns:4fr auto;
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  margin:16px 0;
+  word-break:break-word;
+  box-shadow:4px 4px 8px rgba(0,0,0,0.08);
+  } 
+  .card:hover .btns{
+  display:inline-block;
+  opacity:1;
+  }
+  
+  .line{
+  text-decoration:line-through;
+  }
+  
+
+  
+  .btns{
+  display:block;
+  }
+  
+  .btn{
+  display:block;
+  background:#333;
+  height:30px;
+  width:30px;
+  border-radius:8px;
+  color:#fff;
+  outline: 0;
+  border: 0;
+  float: right;
+  padding:1px;
+  margin:0 2px;
+  box-shadow:2px 2px 2px rgba(0,0,0,0.1),
+  -2px -2px 2px rgba(0,0,0,0.1);
+  }
+  
+  .card:hover .btns{
+  display:block;
+  }
+  
+  
+  .success{
+  background:#5597ffdd;
+  }
+  
+  .danger{
+  background:#ff4d4dff;
+  }
+  
+  .add{
+  border-radius:50%;
+  height:60px;
+  width:60px;
+  font-size:2em;
+  position:fixed;
+  bottom:20px;
+  right:15px;
+  }
+  
+   .close {
+   outline: 0;
+   border: 0;
+   background:none;
+   float: right;
+   font-size:1.25em;
+   }
+   
+   span {
+   display:block;
+   width:100px;
+   height:5px;
+   margin:5px auto;
+   background:#5597ffdd;
+   }
+   
+   #status{
+   background:#fff;
+   padding:16px;
+   border-radius:8px;
+   margin:20px 0;
+   box-shadow:4px 4px 16px rgba(0,0,0,0.1),
+              -4px -4px 16px rgba(0,0,0,0.1);
+   }
+   
+   .splash{
+   background:#5597ff;
+   position: fixed;
+   top:0;
+   left:0;
+   width:100%;
+   height:100vh;
+   z-index:10;
+   display:flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+   animation-name:fade;
+   animation-delay:1.5s;
+   animation-duration:0.5s;
+   animation-iteration-count:1;
+   animation-timing-function:ease-in;
+   }
+   
+   .splashCon{
+   animation-name: splash;
+   animation-delay:0s;
+   animation-duration:1s;
+   animation-iteration-count:1;
+   animation-timing-function:ease-out;
+   }
+   
+   @keyframes splash{
+   0%{
+   transform:translateY(500px);
+   opacity:0;
+   }
+   100%{
+   transform:translateY(0px);
+   opacity:1;
+   }
+   }
+   
+   @keyframes fade{
+   0%{
+   opacity:1;
+   }
+   100%{
+   opacity:0;
+   }
+   }
+   
+   @media(min-width:550px){
+   #app{
+   width:500px;
+   }
+   
+   }
+   
+
+</style>
+
+</head>
+
+
+<body>
+<div id="app"></div>
+<script type="text/babel">
+
+const {useState,useEffect,useReducer,useContext}=React;
+var app=document.querySelector("#app");
+
+const InfoProvider=React.createContext();
+var id=1;
+
+
+const App=()=>{
+
+const add=(task)=>{
+setTasks([...tasks, {id:id++,todo:task, status:false}]);
+setTask("");
+setIncomplete(incompleteTasks+1);
+}
+
+const completed=(id)=>{
+const updatedTasks=tasks.map((task)=>{
+
+if (task.id==id){
+var elemId="#Task"+id.toString();
+var elem=document.querySelector(elemId);
+if (task.status==false){
+elem.style.textDecoration="line-through";
+elem.style.background="#121212";
+elem.style.color="#eee";
+setIncomplete(incompleteTasks-1);
+}
+
+else if (task.status==true){
+elem.style.textDecoration="none";
+elem.style.background="#fff";
+elem.style.color="#333";
+setIncomplete(incompleteTasks+1);
+}
+return {...task, status:!task.status};
+}
+return task
+}
+
+);
+
+setTasks(updatedTasks);
+}
+
+const remove=(id, status)=>{
+setTasks (tasks.filter((task)=>task.id!==id));
+if (status==false){
+setIncomplete(incompleteTasks-1);
+}
+setContent("Task Removed");
+}
+
+const editTask=(id, status)=>{
+const updatedTasks=tasks.map((Task)=>{
+if (Task.id==id){
+
+return {...Task,todo:task, status: false}
+}
+return Task;
+});
+setTasks(updatedTasks);
+setTask("");
+if (status==true){
+var elemId="#Task"+id.toString();
+var elem=document.querySelector(elemId);elem.style.textDecoration="none";
+elem.style.background="#fff";
+elem.style.color="#333";
+setIncomplete(incompleteTasks+1);
+}
+}
+  
+const [tasks,setTasks]=useState([]);
+const [task,setTask]=useState("");
+const [Add,setAdd]=useState(false);
+const [showModal,setShow]=useState(false);
+var totalTasks=tasks.length;
+var [incompleteTasks,setIncomplete]=useState(tasks.length);
+const [modalContent,setContent]=useState("");
+const [splash,setSplash]=useState(true);
+
+useEffect(()=>{setTimeout(()=>setSplash(false),2000)},[]);
+
+return <InfoProvider.Provider value={{task,setTask,tasks,setTasks,add,Add,setAdd,incompleteTasks,setIncomplete, showModal,setShow,modalContent,setContent, remove, completed, editTask}}>
+{splash && <SplashScreen/>}
+<h1><i class="fas fa-clipboard-check"></i> To-do App<span></span></h1>
+<div id="status">
+<h2><i class="fas fa-list-alt"></i> Tasks : {totalTasks}</h2>
+<p>Incomplete : {incompleteTasks}</p>
+</div>
+<AddButton/>
+{Add && <TaskInput/>}
+<List/>
+{showModal && <Modal/>}
+</InfoProvider.Provider>
+
+}
+
+//Splash screen
+
+const SplashScreen=()=>{
+return <div class="splash"><i class="fas fa-clipboard-check fa-10x"></i>
+<h1 class="splashCon">To-do</h1>
+</div>
+}
+
+//add button
+
+const AddButton=()=>{
+
+const {Add,setAdd}=useContext (InfoProvider);
+
+return <button id="addBtn" onClick={()=>{setAdd(!Add); document.querySelector("#addBtn").style.display="none"}} class="btn add">+</button>
+
+}
+	
+
+//Input
+const TaskInput=()=>{
+
+const {task, setTask,tasks,setTasks, add,setAdd,setShow,setContent}=useContext(InfoProvider);
+
+const handler=(e)=>{
+
+e.preventDefault();
+
+if (task){
+setAdd(false);
+document.querySelector("#addBtn").style.display="block";
+add(task);
+setShow(true);
+setContent("Task Added");
+}
+
+
+} 
+
+
+return <form onSubmit={handler}>
+
+<button class="close" onClick={()=>{setAdd(false);document.querySelector("#addBtn").style.display="block"}}>×</button>
+
+<label for="task">Task</label>
+<input type="text" value={task} placeholder="New Task" id="task" onChange={(e)=>setTask(e.target.value)} />
+<button type="submit">Add</button>
+
+</form>
+
+}
+
+//Edit
+
+const Edit=({id, setEdit, status})=>{
+const {task,setTask,tasks,setTasks, editTask,incompleteTasks,setIncomplete}=useContext(InfoProvider);
+
+const handler=(e)=>{
+
+e.preventDefault();
+
+if (task){
+editTask(id, status);
+setEdit(false);
+}
+
+} 
+
+return <form onSubmit={handler}>
+<button class="close" onClick={()=>{setEdit(false);document.querySelector("#addBtn").style.display="block"}}>×</button>
+
+<label for="task">Edit</label>
+<input type="text" value={task} placeholder="New Task" id="task" onChange={(e)=>{setTask(e.target.value)}} />
+<button type="submit">Save</button>
+
+</form>
+
+}
+
+//Modal
+
+const Modal=()=>{
+
+const {setShow,modalContent}=useContext(InfoProvider);
+
+useEffect(()=>{
+setTimeout(()=>setShow (false),1000)
+}
+)
+
+return <h4>{modalContent}</h4>
+
+}
+
+//list
+
+const List=()=>{
+const {task, setTask,tasks,setTasks, completed}=useContext(InfoProvider);
+return (tasks.map((task)=>{
+return <Task key={task.id} {...task}/>
+})
+
+)
+}
+
+//Single Task
+
+const Task=({id,todo, status})=>{
+const [edit, setEdit]=useState(false);
+const {task, setTask,tasks,setTasks,incompleteTasks,setIncomplete,setShow,setContent, completed, remove}=useContext(InfoProvider);
+
+
+
+ return (<React.Fragment><div key={id} id={"Task"+id} class="card"><h4>{todo} </h4>
+ <div class="btns">
+ <button onClick={()=>{remove (id, status)}} class="btn danger"><i class="fas fa-times"></i></button>
+ <button onClick={()=>setEdit(!edit)} class="btn success"><i class="fas fa-edit"></i></button>
+ <button onClick={()=>{completed (id, status)}} class="btn success"><i class="fas fa-check"></i></button>
+ 
+ </div>
+ </div>
+  {edit && <Edit id={id} status={status} setEdit={setEdit}/>}
+  </React.Fragment>)
+
+}
+
+ReactDOM.render(<App/>,app);
+</script>
+</body>
+</html>
